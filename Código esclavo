@@ -1,0 +1,67 @@
+#include <Servo.h>
+
+Servo indicador;
+int pin_dc = 6;
+
+void setup() {
+  indicador.attach(8);    
+  Serial.begin(9600);
+  indicador.write(90);
+} 
+
+void loop() {
+  int receivedChar;
+  if (Serial.available() > 0) {
+    receivedChar = Serial.read();
+  }
+  Serial.print(receivedChar);
+  if (receivedChar == 1) {
+    for(int i = 0; i < 1; i++){
+      indicador.write(0);
+      delay(3000);
+      indicador.write(90);
+      delay(2000);
+    }    
+  } 
+  else if (receivedChar == 2) {
+    for(int i = 0; i < 2; i++){
+      indicador.write(0);
+      delay(3000);
+      indicador.write(90);
+      delay(2000);
+    }
+  } 
+  else if (receivedChar == 3) {
+    for(int i = 0; i < 1; i++){
+      indicador.write(180);
+      delay(3000);
+      indicador.write(90);
+      delay(2000);
+    }
+  }
+  else if (receivedChar == 4) {
+    for(int i = 0; i < 2; i++){
+      indicador.write(180);
+      delay(3000);
+      indicador.write(90);
+      delay(2000);
+    }
+  }
+  else if(receivedChar == 5){
+    for(int i = 0; i < 1; i++){
+      digitalWrite(pin_dc, HIGH);
+      delay(1000);
+      digitalWrite(pin_dc, LOW);
+      delay(6000);
+    }
+  }
+  else if(receivedChar == 6){
+    for(int i = 0; i < 2; i++){
+      digitalWrite(pin_dc, HIGH);
+      delay(1000);
+      digitalWrite(pin_dc, LOW);
+      delay(6000);
+    }
+  }
+}
+

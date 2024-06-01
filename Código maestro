@@ -36,7 +36,7 @@ void loop() {
   lcd.print("Indique cuantas");
   lcd.setCursor(0, 1);
   lcd.print("pastillas");
-  delay(1000);
+  delay(2000);
   lcd.clear();
   //esto solo sirve para comprobar que esté funcionando, no es necesario incluirlo
   Serial.print(temprano);
@@ -59,32 +59,32 @@ void loop() {
   //seleccion para enviar el byte al esclavo
   if(X == '1'){
     if(noche == 1){
-      Serial.write(1);
       panito();
+      Serial.write(1);
     }
     else if(noche == 2){
-      Serial.write(2);
       panito();
+      Serial.write(2);
     }
   }
   else if(X == '2'){
     if(noche == 1){
-      Serial.write(3);
       panito();
+      Serial.write(3);
     }
     else if(noche == 2){
-      Serial.write(4);
       panito();
+      Serial.write(4);
     }
   }
   else if(X == '3'){
     if(noche == 1){
-      Serial.write(5);
       panito();
+      Serial.write(5);
     }
     else if(noche == 2){
-      Serial.write(6);
       panito();
+      Serial.write(6);
     }
   }
   else{
@@ -105,10 +105,11 @@ void mensaje(){
   lcd.print("Que pastilla");
   lcd.setCursor(0, 1);
   lcd.print("necesitas?");
-  delay(1000);
+  delay(2000);
   lcd.clear();
   lcd.print("Selecciona la");
   lcd.setCursor(0, 1);
   lcd.print("opcion");
-  delay(1000);
+  delay(2000);
 }
+

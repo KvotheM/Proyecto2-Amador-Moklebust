@@ -1,66 +1,76 @@
 #include <Servo.h>
 
-Servo indicador;
-int pin_dc = 6;
-
+Servo indicador, dolor; 
+void mov90();
+void mov180();
+void mov_dolor();
 void setup() {
-  indicador.attach(8);    
+  indicador.attach(8);
+  dolor.attach(6);    
   Serial.begin(9600);
-  indicador.write(90);
+  dolor.write(0);
+  indicador.write(90); //se inicia el programa y se colocan posiciones iniciales para servos
 } 
 
 void loop() {
   int receivedChar;
   if (Serial.available() > 0) {
-    receivedChar = Serial.read();
+    receivedChar = Serial.read(); //se recibe el caracter enviado por el maestro y se lo asigna a una variable
   }
   Serial.print(receivedChar);
+  Serial.print("\n"); //esto es solamente una manera de comprobar que el código reciba lo que envía al maestro podría omitirse
+
+  //esta serie de ifs analizan el caracter enviado por el maestro y responden para mover los servos
   if (receivedChar == 1) {
     for(int i = 0; i < 1; i++){
-      indicador.write(0);
-      delay(3000);
-      indicador.write(90);
-      delay(2000);
+      mov90();
     }    
   } 
   else if (receivedChar == 2) {
     for(int i = 0; i < 2; i++){
-      indicador.write(0);
-      delay(3000);
-      indicador.write(90);
-      delay(2000);
+      mov90();
     }
   } 
   else if (receivedChar == 3) {
     for(int i = 0; i < 1; i++){
-      indicador.write(180);
-      delay(3000);
-      indicador.write(90);
-      delay(2000);
+      mov180();
     }
   }
   else if (receivedChar == 4) {
     for(int i = 0; i < 2; i++){
-      indicador.write(180);
-      delay(3000);
-      indicador.write(90);
-      delay(2000);
+      mov180();
     }
   }
   else if(receivedChar == 5){
     for(int i = 0; i < 1; i++){
-      digitalWrite(pin_dc, HIGH);
-      delay(1000);
-      digitalWrite(pin_dc, LOW);
-      delay(6000);
+      mov_dolor();
     }
   }
   else if(receivedChar == 6){
     for(int i = 0; i < 2; i++){
-      digitalWrite(pin_dc, HIGH);
-      delay(1000);
-      digitalWrite(pin_dc, LOW);
-      delay(6000);
+      mov_dolor();
     }
   }
+}
+
+void mov90(){
+  //esta funcion se encarga del movimiento que da la dosis de la mañana
+  indicador.write(0);
+  delay(3000);
+  indicador.write(90);
+  delay(2000);
+}
+void mov180(){
+  //esta funcion se encarga del movimiento que da la dosis de la noche
+  indicador.write(180);
+  delay(3000);
+  indicador.write(90);
+  delay(2000);
+}
+void mov_dolor(){
+  //esta funcion se encarga del movimiento que da el servo que dispensa el tylenol
+  dolor.write(0);
+  delay(3000);
+  dolor.write(180);
+  delay(2000);
 }

@@ -1,23 +1,17 @@
 #include <LiquidCrystal_I2C.h>
 #include <Wire.h>
 
-LiquidCrystal_I2C lcd(0x20, 16, 2);
-
-typedef enum estado {E1, AM, PM, TY, seleccion};
-estado actual = E1;
-estado futuro = E1;
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+//se definen las variables que se utilizarán a nivel global en el programa
 void panito();
 void mensaje();
 long temprano, noche, tem, noc;
 const int8_t tylenol = 10;
-
 char X;
-
-const long intervalo = 1000;
-unsigned long previousMillis = 0;
 boolean ty;
 
 void setup() {
+  //se definen las entradas que el programa tendrá y los pines que lo entregan
   Serial.begin(9600);
   pinMode(tylenol, INPUT);
   pinMode(A0, INPUT);
@@ -31,10 +25,12 @@ void setup() {
 
 void loop() {
   mensaje();
+  //asigna valores a las variables 
   tem = analogRead(A0);
   noc = analogRead(A1);
   temprano = map(tem, 0, 1023, 0, 110);
-  noche = map(noc, 0, 1023, 0, 2);
+  noche = map(noc, 0, 1023, 0, 3); //aunque solo da 2 dosis se lo coloca en 3 ya que el potenciometro 
+  //no llega hasta el valor total en la vida real (al menos el que usamos)
   ty = digitalRead(tylenol);
   lcd.clear();
   lcd.print("Indique cuantas");
@@ -42,109 +38,70 @@ void loop() {
   lcd.print("pastillas");
   delay(1000);
   lcd.clear();
-  
-  switch (actual) {
-    case E1:
-      if (temprano >= 10 && temprano < 60  && ty == LOW) {
-        futuro = AM;
-        break;
-      }
-      else if (temprano > 60 && ty == LOW) {
-        futuro = PM;
-        break;
+  //esto solo sirve para comprobar que esté funcionando, no es necesario incluirlo
+  Serial.print(temprano);
+  Serial.print("\n");
+  Serial.print(noche);
+  Serial.print("\n");
+  //logica para seleccionar el caso en el que se encuentra el programa
+  if (temprano >= 10 && temprano < 60  && ty == LOW) {
+    X = '1';
+  }
+  else if (temprano > 60 && ty == LOW) {
+    X = '2';
       } 
-      else if (temprano < 10 && ty == HIGH) {
-        futuro = TY;
-        break;
-      }
-      else{
-        futuro = seleccion;
-        X = '0';
-        break;
-      }
-    case AM:
-      if (temprano >= 10 && temprano < 60  && ty == LOW) {
-        futuro = seleccion;
-        X = '1';
-        break;
-      }
-    case PM:
-      if (temprano > 60 && ty == LOW) {
-        futuro = seleccion;
-        X = '2';
-        break;
-      }
-    case TY:
-      if (temprano < 10 && ty == HIGH) {
-        futuro = seleccion;
-        X = '3';
-        break;
-      }
-    case seleccion:
-      futuro = E1;
-      break;
+  else if (temprano < 10 && ty == HIGH) {
+    X = '3';
   }
-  switch (actual) {
-    case seleccion:
-      if(X == '1'){
-        if(noc == 1){
-          Serial.write(1);
-          panito();
-          break;
-        }
-        else if(noc == 2){
-          Serial.write(2);
-          panito();
-          break;
-        }
-      }
-      else if(X == '2'){
-        if(noche == 1){
-          Serial.write(3);
-          panito();
-          break;
-        }
-        else if(noche == 2){
-          Serial.write(4);
-          panito();
-          break;
-        }
-      }
-      else if(X == '3'){
-        if(noche == 1){
-          Serial.write(5);
-          panito();
-          break;
-        }
-        else if(noche == 2){
-          Serial.write(6);
-          panito();
-          break;
-        }
-      }
-      else{
-        Serial.write(0);
-        break;
-      }
-      break;
+  else{
+    X = '0';
   }
-  delay(1000);
-  if (actual != futuro) {
-    unsigned long currentMillis = millis();
-    if (currentMillis - previousMillis >= intervalo) {
-      actual = futuro;
-      previousMillis = currentMillis;
+  //seleccion para enviar el byte al esclavo
+  if(X == '1'){
+    if(noche == 1){
+      Serial.write(1);
+      panito();
+    }
+    else if(noche == 2){
+      Serial.write(2);
+      panito();
     }
   }
+  else if(X == '2'){
+    if(noche == 1){
+      Serial.write(3);
+      panito();
+    }
+    else if(noche == 2){
+      Serial.write(4);
+      panito();
+    }
+  }
+  else if(X == '3'){
+    if(noche == 1){
+      Serial.write(5);
+      panito();
+    }
+    else if(noche == 2){
+      Serial.write(6);
+      panito();
+    }
+  }
+  else{
+    Serial.write(0);
+  }
+  delay(1000);
 }
 
 void panito(){
+  //esta funcion despliegamensaje de apagar opcion para evitar que se mutipliquen los caracteres enviados
   lcd.clear();
   lcd.print("Apague opcion");
   delay(5000);
   lcd.clear();
 }
 void mensaje(){
+  //da los mensajes para que el usuario use el programa
   lcd.print("Que pastilla");
   lcd.setCursor(0, 1);
   lcd.print("necesitas?");
